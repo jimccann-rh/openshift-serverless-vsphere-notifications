@@ -27,6 +27,7 @@ foreach ($key in $cihash.Keys) {
         $govcOutput = "./volumes.json"
         $govcError = "./$($cihash[$key].vcenter)-govcerror.txt"
         $govcOutdisk = "./$($cihash[$key].vcenter)-govcoutdisk.txt"
+        $govcOutsnap = "./$($cihash[$key].vcenter)-govcoutsnap.txt"
 
         write-host $cihash[$key].vcenter
         write-host $cihash[$key].datastore
@@ -40,7 +41,9 @@ foreach ($key in $cihash.Keys) {
         write-host "DONE with datastore clean up"
        
         $process = Start-Process -Wait -RedirectStandardError $govcError -RedirectStandardOutput $govcOutput -FilePath /bin/govc -ArgumentList @("volume.ls", "-json", "-ds $($cihash[$key].datastore)") -PassThru -ErrorAction Continue
-
+        #not tested
+        $process2 = Start-Process -Wait -RedirectStandardError $govcError -RedirectStandardOutput $govcOutsnap -FilePath /bin/govc -ArgumentList @("volume.snapshot.ls", "-l", "-json", "-ds $($cihash[$key].datastore)") -PassThru -ErrorAction Continue
+        
         if ($process.ExitCode -eq 0) {
             $volumeHash = Get-Content -Path $govcOutput | ConvertFrom-Json 
             #$volumeHash = (Get-Content -Path $govcOutput | ConvertFrom-Json -AsHashtable)
